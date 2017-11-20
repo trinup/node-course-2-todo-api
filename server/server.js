@@ -60,7 +60,7 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
     var id = req.params.id;
     if(!ObjectID.isValid(id)){
-        return res.status(400).send({error: 'Not a valid ID'});
+        return res.status(404).send({error: 'Not a valid ID'});
     }
     Todo.findById(id).then((todos) => {
         if(!todos){
@@ -73,6 +73,19 @@ app.get('/todos/:id', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Started on port ${port}`);
+});
+
+app.delete('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+    Todo.findByIdAndRemove(id).then((result) => {
+        if (!result) {
+            res.status(404).send();
+        }
+        res.send({"todo": result});
+    }).catch((e) => console.log(e));
 });
 
 module.exports = {app};
