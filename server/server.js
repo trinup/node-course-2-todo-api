@@ -65,9 +65,9 @@ app.get('/todos/:id', (req, res) => {
         if(!todos){
             return res.status(404).send({error: 'Cannot find the todo for this ID'});
         }
-        res.send(todos);
+        res.send({todos});
         // console.log('The to do note is: ', {todos});
-    }).catch((e) => res.status(400).send())
+    }).catch((e) => res.status(400).send());
 });
 
 app.listen(3000, () => {

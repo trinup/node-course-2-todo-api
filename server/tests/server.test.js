@@ -10,6 +10,7 @@ const todos = [
     {text: 'First test todo'},
     {text: 'Second test todo'}];
 
+//lifecycle method    
 beforeEach((done) => {
     Todo.remove({}).then(() => {
         return Todo.insertMany(todos);
@@ -57,7 +58,7 @@ describe('POST /todos', () => {
 });
 
 describe('GET /todos', () => {
-    it('should get all todos',(done) => {
+    it('should get all todos', (done) => {
         request(app)
         .get('/todos')
         .expect(200)
