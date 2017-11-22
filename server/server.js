@@ -84,8 +84,8 @@ app.delete('/todos/:id', (req, res) => {
         if (!result) {
             res.status(404).send();
         }
-        res.send({"todo": result});
-    }).catch((e) => console.log(e));
+        res.send({todo: result});
+    }).catch((e) => res.status(400).send());
 });
 
 module.exports = {app};

@@ -5,10 +5,12 @@ const {ObjectID} = require('mongodb');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
+var id;
 //seed data
 const todos = [
     {text: 'First test todo'},
     {text: 'Second test todo'}];
+
 
 //lifecycle method    
 beforeEach((done) => {
@@ -70,7 +72,6 @@ describe('GET /todos', () => {
 });
 
 describe('GET /todos/:id', () => {
-    var id;
     it('should get the correct todo', (done) => {
         var todo = {text: 'First test todo'};
         Todo.findOne(todo).then((item) => {
@@ -104,4 +105,39 @@ describe('GET /todos/:id', () => {
             .end(done);
     });
 
+});
+
+describe('DELETE /todos/:id', () => {
+    it('should remove a todo', (done) => {
+        request(app)
+        .delete(`/todos/${id}`)
+        .expect(200)
+        .expect((res) => {
+            expect(res.body.todo.text).toBe("First test todo");
+        })
+        .end((err, res) => {
+            if (err) {
+                return done(err);
+            }
+            Todo.findById(id).then((todo) => {
+                expect(todo).toNotExist();
+                done();
+            }).catch((e) => done(e));
+        });
+    });
+
+    it('Should return 404 if todo not found', (done) => {
+        let newID = new ObjectID().toHexString();
+        request(app)
+        .delete(`/todos/${newID}`)
+        .expect(404)
+        .end(done);
+    });
+
+    it('Should return 404 if object id is invalid', (done) => {
+        request(app)
+        .delete('/todos/abc')
+        .expect(404)
+        .end(done);
+    });
 });
