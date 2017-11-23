@@ -74,17 +74,17 @@ describe('GET /todos', () => {
 
 describe('GET /todos/:id', () => {
     it('should get the correct todo', (done) => {
-        var todo = {text: 'First test todo'};
+        let todo = {text: 'First test todo'};
         Todo.findOne(todo).then((item) => {
             id = item._id;
-            var url = `/todos/${id.toHexString()}`;
+            let url = `/todos/${id.toHexString()}`;
             return url;
         }).then((url) => {
             request(app)
                 .get(url)
                 .expect(200)
                 .expect((res) => {
-                    expect(res.body.text).toBe(todos[0].text);
+                    expect(res.body.todos.text).toBe(todos[0].text);
                 })
                 .end(done);
         }).catch((e) => console.log("Error:", e));
@@ -95,7 +95,7 @@ describe('GET /todos/:id', () => {
         let id = "abc";
         request(app)
             .get(`/todos/${id}`)
-            .expect(400)
+            .expect(404)
             .end(done);
     });
 
@@ -110,11 +110,16 @@ describe('GET /todos/:id', () => {
 
 describe('DELETE /todos/:id', () => {
     it('should remove a todo', (done) => {
-        request(app)
-        .delete(`/todos/${id}`)
-        .expect(200)
-        .expect((res) => {
-            expect(res.body.todo.text).toBe("First test todo");
+        var todo = {text: 'First test todo'};
+        Todo.findOne(todo).then((item) => {
+            let id = item._id;
+            return id.toHexString();
+        }).then((id) => {
+            request(app)
+            .delete(`/todos/${id}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe("First test todo");
         })
         .end((err, res) => {
             if (err) {
@@ -126,6 +131,7 @@ describe('DELETE /todos/:id', () => {
             }).catch((e) => done(e));
         });
     });
+});
 
     it('Should return 404 if todo not found', (done) => {
         let newID = new ObjectID().toHexString();
