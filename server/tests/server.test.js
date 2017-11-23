@@ -9,7 +9,8 @@ var id;
 //seed data
 const todos = [
     {text: 'First test todo'},
-    {text: 'Second test todo'}];
+    {text: 'Second test todo', completed: true, completedAt: 333}
+];
 
 
 //lifecycle method    
@@ -139,5 +140,55 @@ describe('DELETE /todos/:id', () => {
         .delete('/todos/abc')
         .expect(404)
         .end(done);
+    });
+});
+
+describe('PATCH /todos/:id', () => {
+    it("Should update the todo", (done) => {
+        let updatedObj = {
+            text: 'Updated first test todo',
+            completed: true
+        };
+        let todo = {text: 'First test todo'};
+        Todo.findOne(todo).then((item) => {
+            id = item._id;
+            var url = `/todos/${id.toHexString()}`;
+            return url;
+        }).then((url) => {
+            request(app)
+            .patch(url)
+            .send(updatedObj)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(updatedObj.text);
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toBeA('number');
+            })
+            .end(done);
+        });
+    });
+
+    it("Should clear completedAt when todo is not completed", (done) => {
+        let updatedObj = {
+            text: 'Updated second test todo',
+            completed: false
+        };
+        let todo = {text: 'Second test todo'};
+        Todo.findOne(todo).then((item) => {
+            id = item._id;
+            var url = `/todos/${id.toHexString()}`;
+            return url;
+        }).then((url) => {
+            request(app)
+            .patch(url)
+            .send(updatedObj)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(updatedObj.text);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist();
+            })
+            .end(done);
+        });
     });
 });
