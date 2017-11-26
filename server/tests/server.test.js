@@ -243,7 +243,7 @@ describe("POST /users", () => {
                 expect(user).toExist();
                 expect(user.password).toNotBe(newUser.password);
                 done();
-            });
+            }).catch((e) => done(e));
         });
     });
 
@@ -272,6 +272,45 @@ describe("POST /users", () => {
         .expect((res) => {
             expect(res.headers['x-auth']).toNotExist();
             expect(res.body.errmsg).toExist();
+        })
+        .end(done);
+    });
+});
+
+describe("POST /users/login", () => {
+    const newUser = _.pick(users[0], ["email", "password"]);
+    it("Should login a valid user and return auth token", (done) => {
+        request(app)
+        .post('/users/login')
+        .send(newUser)
+        .expect(200)
+        .expect((res) => {
+            expect(res.headers['x-auth']).toExist();
+            expect(res.body.email).toBe(newUser.email);
+        })
+        .end((e, res) => {
+            if (e) {
+                return done(e);
+            }
+           User.findById(users[0]._id).then((user) => {
+               console.log(user.tokens);
+               expect(user.tokens[0]).toInclude({
+                   access: 'auth',
+                   token: res.headers['x-auth']
+               });
+               done();
+           }).catch((e) => done(e)); 
+        });
+    });
+
+    it("Should not login for invalid user", (done) => {
+        newUser.password = "wrongpassword";
+        request(app)
+        .post('/users/login')
+        .send(newUser)
+        .expect(400)
+        .expect((res) => {
+            expect(res.headers['x-auth']).toNotExist();
         })
         .end(done);
     });
