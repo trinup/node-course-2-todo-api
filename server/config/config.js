@@ -6,6 +6,8 @@ if (env === "development" || env === "test") {
     Object.keys(envConfig).forEach((key) => {
         process.env[key] = envConfig[key];
     });
+} else {
+    process.env.MONGODB_URI = 'mongodb://punit:punit@ds113736.mlab.com:13736/todo-api-db';
 }
 
 // if (env === 'development') {
